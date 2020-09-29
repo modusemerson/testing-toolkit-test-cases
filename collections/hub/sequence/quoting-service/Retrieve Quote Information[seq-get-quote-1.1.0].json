@@ -1,0 +1,575 @@
+{
+  "name": "multi",
+  "test_cases": [
+    {
+      "id": 1,
+      "name": "GET /quotes/{ID} - Happy Path",
+      "requests": [
+        {
+          "id": 1,
+          "description": "Send sample POST /quotes request",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/quotes",
+          "path": "/quotes",
+          "method": "post",
+          "url": "{$environment.HOST_QUOTING_SERVICE}",
+          "ignoreCallbacks": false,
+          "headers": {
+            "Accept": "{$inputs.acceptQuotes}",
+            "Content-Type": "{$inputs.contentTypeQuotes}",
+            "FSPIOP-Source": "testingtoolkitdfsp",
+            "FSPIOP-Destination": "payeefsp",
+            "Date": "{$function.generic.curDate}"
+          },
+          "body": {
+            "quoteId": "{$environment.quoteId}",
+            "transactionId": "{$environment.transactionId}",
+            "payer": {
+              "partyIdInfo": {
+                "partyIdType": "MSISDN",
+                "partyIdentifier": "27713803912",
+                "fspId": "testingtoolkitdfsp"
+              },
+              "personalInfo": {
+                "complexName": {
+                  "firstName": "Mats",
+                  "lastName": "Hagman"
+                },
+                "dateOfBirth": "1983-10-25"
+              }
+            },
+            "payee": {
+              "partyIdInfo": {
+                "partyIdType": "MSISDN",
+                "partyIdentifier": "22556999125",
+                "fspId": "payeefsp"
+              }
+            },
+            "amountType": "SEND",
+            "amount": {
+              "amount": "{$environment.transferAmount}",
+              "currency": "{$environment.currency}"
+            },
+            "transactionType": {
+              "scenario": "TRANSFER",
+              "initiator": "PAYER",
+              "initiatorType": "CONSUMER"
+            },
+            "note": "hej"
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Status code is 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              },
+              {
+                "id": 5,
+                "description": "Transfer amount is correctly set",
+                "exec": [
+                  "expect(+callback.body.transferAmount.amount).to.equal(environment.transferAmount)"
+                ]
+              }
+            ]
+          },
+          "delay": null,
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "var uuid = require('uuid');",
+                "",
+                "pm.environment.set('quoteId', uuid.v4());",
+                "pm.environment.set('transactionId', uuid.v4());",
+                "pm.environment.set('transferAmount', 60.1234);",
+                "pm.environment.set('quoteDate', (new Date()).toUTCString());",
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "id": 2,
+          "description": "GET /quotes/{ID} - Happy Path",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/quotes/{ID}",
+          "path": "/quotes/{$environment.quoteId}",
+          "method": "get",
+          "url": "{$environment.HOST_QUOTING_SERVICE}",
+          "ignoreCallbacks": false,
+          "params": {
+            "ID": "{$environment.quoteId}"
+          },
+          "headers": {
+            "Accept": "{$inputs.acceptQuotes}",
+            "Content-Type": "{$inputs.contentTypeQuotes}",
+            "FSPIOP-Source": "testingtoolkitdfsp",
+            "FSPIOP-Destination": "payeefsp",
+            "Date": "{$function.generic.curDate}"
+          },
+          "body": {},
+          "tests": {
+            "assertions": [
+              {
+                "id": 6,
+                "description": "Status code is 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              }
+            ]
+          },
+          "delay": null,
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "var uuid = require('uuid');",
+                "",
+                "pm.environment.set('quoteId', uuid.v4());",
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                ""
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "GET /quotes/{ID} - Unhappy path - Invalid request [seq-quote-1.2.0]",
+      "requests": [
+        {
+          "id": 1,
+          "description": "Missing \"Date\" header",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/quotes/{ID}",
+          "path": "/quotes/{$environment.quoteId}",
+          "method": "get",
+          "url": "{$environment.HOST_QUOTING_SERVICE}",
+          "ignoreCallbacks": false,
+          "params": {
+            "ID": "{$environment.quoteId}"
+          },
+          "headers": {
+            "Accept": "{$inputs.acceptQuotes}",
+            "Content-Type": "{$inputs.contentTypeQuotes}",
+            "FSPIOP-Source": "testingtoolkitdfsp",
+            "FSPIOP-Destination": "payeefsp"
+          },
+          "body": {},
+          "tests": {
+            "assertions": [
+              {
+                "id": 6,
+                "description": "Status code is 400",
+                "exec": [
+                  "expect(response.status).to.equal(400)"
+                ]
+              },
+              {
+                "id": 7,
+                "description": "Expects \"Missing mandatory element\" error description",
+                "exec": [
+                  "expect(response.body.errorInformation.errorDescription).to.include('Missing mandatory element')"
+                ]
+              },
+              {
+                "id": 8,
+                "description": "Expects error message to include \"date\" string",
+                "exec": [
+                  "expect(response.body.errorInformation.errorDescription).to.include('date')"
+                ]
+              },
+              {
+                "id": 9,
+                "description": "Expects error code to be \"3102\"",
+                "exec": [
+                  "expect(response.body.errorInformation.errorCode).to.equal('3102')"
+                ]
+              }
+            ]
+          },
+          "delay": null,
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "var uuid = require('uuid');",
+                "",
+                "pm.environment.set('quoteId', uuid.v4());",
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "id": 2,
+          "description": "Missing \"Accept\" header",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/quotes/{ID}",
+          "path": "/quotes/{$environment.quoteId}",
+          "method": "get",
+          "url": "{$environment.HOST_QUOTING_SERVICE}",
+          "ignoreCallbacks": false,
+          "params": {
+            "ID": "{$environment.quoteId}"
+          },
+          "headers": {
+            "Content-Type": "{$inputs.contentTypeQuotes}",
+            "FSPIOP-Source": "testingtoolkitdfsp",
+            "FSPIOP-Destination": "payeefsp"
+          },
+          "body": {},
+          "tests": {
+            "assertions": [
+              {
+                "id": 6,
+                "description": "Status code is 400",
+                "exec": [
+                  "expect(response.status).to.equal(400)"
+                ]
+              },
+              {
+                "id": 7,
+                "description": "Expects \"Missing mandatory element\" error description",
+                "exec": [
+                  "expect(response.body.errorInformation.errorDescription).to.include('Missing mandatory element')"
+                ]
+              },
+              {
+                "id": 8,
+                "description": "Expects error message to include \"Accept\" string",
+                "exec": [
+                  "expect(response.body.errorInformation.errorDescription).to.include('Accept')"
+                ]
+              },
+              {
+                "id": 9,
+                "description": "Expects error code to be \"3102\"",
+                "exec": [
+                  "expect(response.body.errorInformation.errorCode).to.equal('3102')"
+                ]
+              }
+            ]
+          },
+          "delay": null,
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "var uuid = require('uuid');",
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                ""
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "GET /quotes/{ID} - Unhappy path - Payee response invalid [seq-quote-1.2.0] ",
+      "requests": [
+        {
+          "id": 1,
+          "description": "Invalid Payee Response",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/quotes/{ID}",
+          "path": "/quotes/{$environment.quoteId}",
+          "method": "get",
+          "url": "{$environment.HOST_QUOTING_SERVICE}",
+          "ignoreCallbacks": false,
+          "params": {
+            "ID": "{$environment.quoteId}"
+          },
+          "headers": {
+            "Content-Type": "{$inputs.contentTypeQuotes}",
+            "FSPIOP-Source": "testingtoolkitdfsp",
+            "FSPIOP-Destination": "noresponsepayeefsp",
+            "Accept": "{$inputs.acceptQuotes}",
+            "Date": "{$function.generic.curDate}"
+          },
+          "body": {},
+          "tests": {
+            "assertions": [
+              {
+                "id": 6,
+                "description": "Status code is 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              }
+            ]
+          },
+          "delay": null,
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "var uuid = require('uuid');",
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "id": 2,
+          "description": "Invalid Payee Response",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/quotes/{ID}",
+          "path": "/quotes/{$environment.quoteId}",
+          "method": "get",
+          "params": {
+            "ID": "{$environment.quoteId}"
+          },
+          "headers": {
+            "Content-Type": "{$inputs.contentTypeQuotes}",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "noresponsepayeefsp",
+            "FSPIOP-Destination": "testingtoolkitdfsp",
+            "Accept": "{$inputs.acceptQuotes}"
+          },
+          "body": {},
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Status code is 200",
+                "exec": [
+                  "expect(response.status).to.equal(200)"
+                ]
+              },
+              {
+                "id": 2,
+                "description": "Expect Payee FSP callback to be error information",
+                "exec": [
+                  "expect(environment.payeeQuoteCallback.data).to.have.property('errorInformation')",
+                  ""
+                ]
+              },
+              {
+                "id": 3,
+                "description": "Expect error code to be 3100",
+                "exec": [
+                  "expect(environment.payeeQuoteCallback.data.errorInformation.errorCode).to.equal('3100')"
+                ]
+              },
+              {
+                "id": 4,
+                "description": "Expect error description to include \"accept\" to be 3100",
+                "exec": [
+                  "expect(environment.payeeQuoteCallback.data.errorInformation.errorDescription).to.include('accept')"
+                ]
+              }
+            ]
+          },
+          "url": "{$environment.HOST_QUOTING_SERVICE}",
+          "ignoreCallbacks": true,
+          "scripts": {
+            "postRequest": {
+              "exec": [
+                "setTimeout(() => {",
+                "  pm.sendRequest(`${pm.environment.get('HOST_SIMULATOR')}/noresponsepayeefsp/callbacks/${pm.environment.get('quoteId')}`, (_, response) => {",
+                "    pm.environment.set('payeeQuoteCallback', response.json())",
+                "  })",
+                "}, 2000)"
+              ]
+            },
+            "preRequest": {
+              "exec": [
+                "pm.environment.set('quoteExpiration', new Date(new Date().getTime() + 2000))"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "GET /quotes/{ID} - Unhappy path - Quote retrieval fails [seq-quote-1.2.0] ",
+      "requests": [
+        {
+          "id": 1,
+          "description": "GET /quotes/{ID}",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/quotes/{ID}",
+          "path": "/quotes/{$environment.quoteId}",
+          "method": "get",
+          "url": "{$environment.HOST_QUOTING_SERVICE}",
+          "ignoreCallbacks": true,
+          "headers": {
+            "Content-Type": "{$inputs.contentTypeQuotes}",
+            "FSPIOP-Source": "payerfsp",
+            "FSPIOP-Destination": "noresponsepayeefsp",
+            "Accept": "{$inputs.acceptQuotes}",
+            "Date": "{$function.generic.curDate}"
+          },
+          "body": {},
+          "tests": {
+            "assertions": [
+              {
+                "id": 6,
+                "description": "Status code is 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              }
+            ]
+          },
+          "delay": null,
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "pm.environment.set('quoteId', uuid.v4());",
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "id": 2,
+          "description": "Payee responds with error",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/quotes/{ID}/error",
+          "path": "/quotes/{$environment.quoteId}/error",
+          "method": "put",
+          "params": {
+            "ID": "{$environment.quoteId}"
+          },
+          "headers": {
+            "Content-Type": "{$inputs.contentTypeQuotes}",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "noresponsepayeefsp",
+            "FSPIOP-Destination": "payerfsp"
+          },
+          "body": {
+            "errorInformation": {
+              "errorCode": "3100",
+              "errorDescription": "Error occured"
+            }
+          },
+          "delay": "500",
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Status code is 200",
+                "exec": [
+                  "expect(response.status).to.equal(200)"
+                ]
+              },
+              {
+                "id": 2,
+                "description": "Expect Payee FSP callback to be error information",
+                "exec": [
+                  "expect(environment.payerQuoteCallback.data).to.have.property('errorInformation')",
+                  ""
+                ]
+              },
+              {
+                "id": 3,
+                "description": "Expect Payee FSP callback error code matches",
+                "exec": [
+                  "expect(environment.payerQuoteCallback.data.errorInformation.errorCode).to.equal('3100')"
+                ]
+              },
+              {
+                "id": 4,
+                "description": "Expect Payee FSP callback error description matches",
+                "exec": [
+                  "expect(environment.payerQuoteCallback.data.errorInformation.errorDescription).to.equal('Error occured')"
+                ]
+              }
+            ]
+          },
+          "url": "{$environment.HOST_QUOTING_SERVICE}",
+          "ignoreCallbacks": true,
+          "scripts": {
+            "postRequest": {
+              "exec": [
+                "setTimeout(() => {",
+                "  pm.sendRequest(`${pm.environment.get('PAYERFSP_SDK_TESTAPI_URL')}/callbacks/${pm.environment.get('quoteId')}`, (_, response) => {",
+                "    pm.environment.set('payerQuoteCallback', response.json())",
+                "  })",
+                "}, 2000)",
+                ""
+              ]
+            },
+            "preRequest": {
+              "exec": [
+                ""
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
