@@ -245,7 +245,7 @@
                 "id": 14,
                 "description": "Callback Header - content-type is application/vnd.interoperability.quotes+json;version=1.0",
                 "exec": [
-                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.quotes+json;version=1.0')",
+                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.quotes+json;version={$inputs.expectedQuotesVersion}')",
                   ""
                 ]
               },
@@ -440,7 +440,8 @@
                 "requestVariables.completedTimestamp = new Date().toISOString()"
               ]
             }
-          }
+          },
+          "delay": "2000"
         },
         {
           "id": 8,
@@ -555,7 +556,7 @@
               }
             ]
           },
-          "delay": "5000"
+          "delay": "2000"
         },
         {
           "id": 7,

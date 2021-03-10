@@ -5,11 +5,27 @@
       "type": "folder"
     },
     {
-      "name": "new_changes",
+      "name": "bug fixes",
       "type": "folder"
     },
     {
-      "name": "v1.1_changes",
+      "name": "p2p_on_us_transfers",
+      "type": "folder"
+    },
+    {
+      "name": "quoting_service",
+      "type": "folder"
+    },
+    {
+      "name": "transaction_request_service",
+      "type": "folder"
+    },
+    {
+      "name": "settlement_management",
+      "type": "folder"
+    },
+    {
+      "name": "api-tests",
       "type": "folder"
     }
   ]

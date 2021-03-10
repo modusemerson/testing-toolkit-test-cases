@@ -25,8 +25,8 @@
     "contentTransfers": "application/vnd.interoperability.transfers+json;version=1.0",
     "contentType": "application/vnd.interoperability.parties+json;version=1.0",
     "contentTypeQuotes": "application/vnd.interoperability.quotes+json;version=1.0",
-    "currency": "USD",
-    "currency2": "USD",
+    "currency": "{$inputs.currency}",
+    "currency2": "{$inputs.currency}",
     "fromDOB": "1984-01-01",
     "fromFirstName": "Firstname-Test",
     "fromFspId": "testingtoolkitdfsp",
@@ -147,7 +147,7 @@
                 "id": 7,
                 "description": "Callback content-type to be participants",
                 "exec": [
-                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version=1.0')"
+                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version={$inputs.expectedParticipantsVersion}')"
                 ]
               }
             ]
@@ -233,7 +233,7 @@
                 "id": 6,
                 "description": "Callback content-type to be participants",
                 "exec": [
-                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version=1.0')"
+                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version={$inputs.expectedParticipantsVersion}')"
                 ]
               }
             ]
@@ -311,7 +311,7 @@
                 "id": 6,
                 "description": "Callback content-type to be participants",
                 "exec": [
-                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version=1.0')"
+                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version={$inputs.expectedParticipantsVersion}')"
                 ]
               }
             ]
@@ -395,7 +395,7 @@
                 "id": 7,
                 "description": "Callback content-type to be participants",
                 "exec": [
-                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version=1.0')"
+                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version={$inputs.expectedParticipantsVersion}')"
                 ]
               }
             ]
@@ -473,7 +473,7 @@
                 "id": 7,
                 "description": "Callback content-type to be participants",
                 "exec": [
-                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version=1.0')"
+                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version={$inputs.expectedParticipantsVersion}')"
                 ]
               }
             ]
@@ -550,7 +550,7 @@
                 "id": 5,
                 "description": "Callback content-type to be participants",
                 "exec": [
-                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version=1.0')"
+                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version={$inputs.expectedParticipantsVersion}')"
                 ]
               },
               {
@@ -636,7 +636,7 @@
                 "id": 5,
                 "description": "Callback content-type to be participants",
                 "exec": [
-                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version=1.0')"
+                  "expect(callback.headers['content-type']).to.equal('application/vnd.interoperability.participants+json;version={$inputs.expectedParticipantsVersion}')"
                 ]
               },
               {
